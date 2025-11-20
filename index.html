@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analisis Korelasi Phishing - Makalah Kelompok 4</title>
+  <meta name="description" content="Analisis Korelasi Phishing terhadap Akses Tidak Sah — Makalah Etika Profesi IT (Politeknik Negeri Medan, 2025)" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Poppins', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root { --maxw: 1100px; }
+    html { scroll-behavior: smooth; }
+    body {
+      -webkit-font-smoothing: antialiased;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .accent {
+      background: linear-gradient(90deg, #0ea5e9, #2563eb);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .parallax { will-change: transform; }
+
+    @media print {
+      nav, .no-print { display: none !important; }
+      body { background: white; color: black; }
+    }
+
+    /* Fokus aksesibilitas */
+    .user-is-tabbing *:focus {
+      outline: 2px solid #3b82f6 !important;
+      outline-offset: 2px;
+    }
+
+    /* Tombol Ke Atas Sticky */
+    #topBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: #1f2937;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.2s ease;
+    }
+    #topBtn:hover {
+      background-color: #374151;
+    }
+    #topBtn.dark-mode {
+      background-color: #d1d5db;
+      color: #111827;
+    }
+    #topBtn.dark-mode:hover {
+      background-color: #9ca3af;
+    }
+
+    /* Daftar Isi Sticky */
+    .toc-sticky {
+      position: sticky;
+      top: 80px; /* Sesuaikan dengan tinggi navbar */
+      height: fit-content;
+      max-height: calc(100vh - 120px); /* Agar tidak melebihi viewport */
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    }
+    .toc-sticky::-webkit-scrollbar {
+      width: 6px;
+    }
+    .toc-sticky::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .toc-sticky::-webkit-scrollbar-thumb {
+      background-color: rgba(156, 163, 175, 0.5);
+      border-radius: 20px;
+    }
+
+    .chapter-indicator {
+  visibility: hidden;
+}
+
+    /* Gaya untuk sistem navigasi bab */
+    .chapter-container {
+      display: none;
+    }
+    .chapter-container.active {
+      display: block;
+    }
+    .chapter-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    .chapter-navigation.dark {
+      border-top-color: #4b5563;
+    }
+    .chapter-title {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .chapter-title.dark {
+      border-bottom-color: #4b5563;
+    }
+    .chapter-indicator {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+      gap: 0.5rem;
+    }
+    .chapter-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #cbd5e1;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .chapter-dot.active {
+      background-color: #3b82f6;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+
+  <!-- NAVBAR -->
+  <nav class="no-print bg-white/70 dark:bg-slate-800/60 backdrop-blur sticky top-0 z-50 border-b dark:border-slate-700">
+    <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
+
+      <a href="#hero" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-semibold bg-gradient-to-br from-sky-500 to-indigo-600">TR</div>
+        <div>
+          <div class="font-semibold text-sm">Makalah TRPL</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">Analisis Phishing 2025</div>
+        </div>
+      </a>
+
+      <div class="hidden md:flex items-center gap-4">
+        <a href="#abstract" class="text-sm hover:underline">Abstrak</a>
+        <a href="#isi" class="text-sm hover:underline">Isi</a>
+        <a href="#daftar-pustaka" class="text-sm hover:underline">Daftar Pustaka</a>
+        <a href="#team" class="text-sm hover:underline">Kelompok</a>
+
+        <button id="darkToggle" class="p-2 rounded-lg dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Toggle dark mode">
+          <span class="material-icons text-lg">dark_mode</span>
+        </button>
+      </div>
+
+      <button id="menuToggle" class="md:hidden p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Toggle menu">☰</button>
+    </div>
+
+    <div id="mobileNav" class="hidden border-t dark:border-slate-700 md:hidden px-6 py-4 space-y-3">
+      <a href="#abstract">Abstrak</a>
+      <a href="#isi">Isi</a>
+      <a href="#daftar-pustaka">Daftar Pustaka</a>
+      <a href="#team">Kelompok</a>
+      <button id="darkToggleMobile" class="px-3 py-2 border rounded-lg dark:border-slate-600" aria-label="Toggle dark mode">
+        <span class="material-icons">light_mode</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header id="hero" class="max-w-screen-xl mx-auto px-6 py-16 flex flex-col md:flex-row gap-10 items-center">
+    <div class="flex-1 fade-in">
+      <p class="text-sm text-slate-500 dark:text-slate-400">Etika Profesi IT • Politeknik Negeri Medan</p>
+
+      <h1 class="mt-3 text-4xl md:text-5xl font-extrabold leading-tight font-heading">
+        <span class="accent">Analisis Korelasi Phishing</span><br/> terhadap Akses Tidak Sah pada Sistem Komputer
+      </h1>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 max-w-2xl">
+        Makalah ini menganalisis hubungan antara phishing dan unauthorized access dalam sistem komputer...
+      </p>
+
+      <div class="mt-6 flex gap-3">
+        <a href="#isi" class="px-4 py-2 bg-white dark:bg-slate-800 border rounded-lg shadow hover:bg-slate-50 dark:hover:bg-slate-700">Baca Ringkasan</a>
+      </div>
+
+      <p class="mt-6 text-sm text-slate-500 dark:text-slate-400">
+        <strong>Dosen:</strong> Sri Novida Sari
+      </p>
+    </div>
+
+    <div class="w-full md:w-96 relative">
+      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1400&auto=format"
+           class="rounded-2xl shadow-xl w-full parallax fade-in"
+           id="parallaxImage"
+           alt="Ilustrasi keamanan siber" loading="lazy">
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-screen-xl mx-auto px-6 pb-20" id="isi">
+
+    <!-- Abstrak -->
+    <section id="abstract" class="mt-8 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in">
+      <h2 class="text-2xl font-bold font-heading">Abstrak</h2>
+      <p class="mt-3 text-slate-700 dark:text-slate-300">
+        Phishing merupakan salah satu bentuk serangan rekayasa sosial yang bertujuan mencuri informasi sensitif seperti kredensial login, data pribadi, serta informasi rahasia organisasi. Serangan ini menjadi salah satu penyebab utama terjadinya akses tidak sah (unauthorized access) pada sistem komputer. Makalah ini menganalisis korelasi antara phishing dan meningkatnya insiden penyusupan ke sistem, dengan meninjau faktor teknis, manusia, dan organisasi yang berkontribusi terhadap keberhasilan serangan. Selain itu, makalah ini juga mengkaji teori cybercrime, kerangka hukum seperti UU ITE dan UU PDP, serta strategi mitigasi seperti Zero Trust Architecture dan pelatihan cybersecurity awareness. Hasil analisis menunjukkan bahwa unauthorized access terjadi akibat kegagalan sistemik yang melibatkan kelemahan autentikasi, manipulasi psikologis, serta kurangnya budaya keamanan dalam organisasi. Rekomendasi yang diberikan mencakup peningkatan keamanan teknis, penguatan SOP, serta pembangunan budaya sadar keamanan untuk meminimalkan risiko insiden serupa.
+      </p>
+      <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+        <strong>Kata kunci:</strong> phishing, unauthorized access, cybercrime, keamanan informasi, UU ITE, UU PDP
+      </div>
+    </section>
+
+    <!-- TOC + Content -->
+    <section class="mt-10 grid md:grid-cols-4 gap-8">
+      <!-- Daftar Isi (Sticky) -->
+      <nav class="md:col-span-1 bg-white dark:bg-slate-800 p-5 rounded-xl shadow toc-sticky" aria-label="Daftar isi">
+        <h3 class="font-bold font-heading">Daftar Isi</h3>
+        <ul class="mt-4 space-y-3 text-sm text-slate-700 dark:text-slate-300">
+          <li><a href="#" class="hover:underline chapter-link" data-chapter="pendahuluan">Bab I — Pendahuluan</a></li>
+          <li><a href="#" class="hover:underline chapter-link" data-chapter="landasan">Bab II — Landasan Teori</a></li>
+          <li><a href="#" class="hover:underline chapter-link" data-chapter="pembahasan">Bab III — Pembahasan</a></li>
+          <li><a href="#" class="hover:underline chapter-link" data-chapter="penutup">Bab IV — Penutup</a></li>
+          <li><a href="#daftar-pustaka" class="hover:underline">Daftar Pustaka</a></li>
+          <li><a href="#team" class="hover:underline">Identitas Kelompok</a></li>
+        </ul>
+        
+        <!-- Indikator Bab -->
+        <div class="chapter-indicator mt-4">
+          <div class="chapter-dot active" data-chapter="pendahuluan"></div>
+          <div class="chapter-dot" data-chapter="landasan"></div>
+          <div class="chapter-dot" data-chapter="pembahasan"></div>
+          <div class="chapter-dot" data-chapter="penutup"></div>
+        </div>
+      </nav>
+
+      <!-- Konten Utama -->
+      <div class="md:col-span-3 space-y-8">
+
+        <!-- BAB I -->
+        <article id="pendahuluan" class="chapter-container active bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in sectionAnim">
+          <div class="chapter-title dark:dark">
+            <h3 class="text-xl font-bold font-heading">BAB I — Pendahuluan</h3>
+          </div>
+
+          <h4 class="mt-4 font-semibold">1.1 Latar Belakang</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Teknologi informasi berkembang dengan sangat pesat dan membawa dampak positif dalam meringankan aktivitas manusia, di sisi lain juga meningkatkan kerentanan terhadap ancaman keamanan siber. Salah satunya phising yang merupakan upaya penipuan terhadap manusia agar termanipulasi dan memberikan informasi sensitif seperti kredensial login, data pribadi dan lainnya. Selain mengincar individu, phising juga menjadi salah satu metode paling efektif bagi pelaku kejahatan siber untuk memasuki sistem komputer secara tidak sah.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Dalam beberapa tahun belakangan, phising tetap menjadi vektor serangan yang paling dominan yang digunakan untuk pelaku kejahatan siber untuk mendapatkan akses tidak sah ke suatu sistem. Melalui kredensial yang telah dicuri, pelaku kejahatan siber dapat melakukan tindakan lebih lanjut seperti mengeksekusi malware, mengambil alih akun, bahkan mengakses infrastruktur dari sistem komputer yang diserang tanpa izin.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Kejadian ini tidak hanya menimbulkan kerugian secara material, tetapi juga terhadap reputasi organisasi itu sendiri. Banyak insiden keamanan yang lebih besar seperti ransomware, sabotase sistem berawal dari keberhasilan pelaku kejahatan siber dalam melakukan phising.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Oleh karena itu, sangat penting untuk individual memahami korelasi antara phising dan terjadinya akses tidak sah terhadap sistem komputer. Dengan penjabaran bagaimana teknik phising bekerja, bagaimana individual dapat terpengaruh serta bagaimana kredensial yang dicuri digunakan untuk melakukan penyusupan diharapkan dapat memberikan gambaran yang jelas mengenai tingkat risiko yang ditimbulkan. Pemahaman tersebut juga dapat menjadi strategi mitigasi yang lebih efektif dalam mencegah serangan yang dimulai dari social engineering ini.
+          </p>
+
+          <h4 class="mt-4 font-semibold">1.2 Rumusan Masalah</h4>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Bagaimana teknik phising digunakan untuk memperoleh informasi sensitif seperti kredensial pengguna?</li>
+            <li>Bagaimana kredensial yang dicuri melalui phising dapat digunakan untuk melakukan akses tidak sah ke sistem komputer?</li>
+            <li>Faktor apa saja yang menyebabkan phising tetap menjadi vector serangan yang paling efektif bagi pelaku kejahatan siber?</li>
+            <li>Strategi mitigasi apa yang dapat diterapkan untuk meminimalkan risiko akses tidak sah yang berawal dari phising?</li>
+          </ol>
+
+          <h4 class="mt-4 font-semibold">1.3 Tujuan Penulisan</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Adapun tujuan dari penulisan ini adalah sebagai berikut:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Menganalisis mekanisme kerja phising dalam mencuri informasi atau kredensial pengguna</li>
+            <li>Mengungkapkan faktor-faktor yang mendukung efektivitas phising sebagai pintu awal serangan siber.</li>
+            <li>Memberikan rekomendasi langkah pencegahan dan mitigasi untuk mengurangi risiko akses tidak sah akibat phising</li>
+          </ol>
+
+          <h4 class="mt-4 font-semibold">1.4 Manfaat Penulisan</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Penelitian ini diharapkan dapat memberikan manfaat sebagai berikut:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Membantu individu memahami risiko phising dan bagaimana serangan tersebut dapat memicu akses tidak sah terhadap sistem komputer.</li>
+            <li>Memberikan wawasan bagi organisasi dalam meningkatkan kebijakan keamanan dan kesadaran karyawan terhadap ancaman phising.</li>
+          </ol>
+
+          <!-- Navigasi Bab -->
+          <div class="chapter-navigation dark:dark">
+            <div></div> <!-- Spacer untuk bab pertama -->
+            <button class="next-chapter px-4 py-2 bg-sky-600 text-white rounded-lg shadow hover:bg-sky-700 flex items-center gap-2" data-next="landasan">
+              Bab Selanjutnya <span class="material-icons text-sm">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- BAB II -->
+        <article id="landasan" class="chapter-container bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in sectionAnim">
+          <div class="chapter-title dark:dark">
+            <h3 class="text-xl font-bold font-heading">BAB II — Landasan Teori</h3>
+          </div>
+
+          <h4 class="mt-4 font-semibold">2.1 Teori Cybercrime</h4>
+          <h5 class="mt-2 font-semibold">2.1.1 Definisi Cybercrime</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Dalam terminologinya, istilah "cybercrime" terdiri atas dua kata dalam bahasa Inggris, yaitu "cyber" yang berarti di dunia maya, dan "crime" yang berarti kejahatan atau perbuatan yang melanggar hukum.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Beberapa ahli telah mencoba merumuskan definisi cybercrime, di antaranya:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>(Al-Khater et al., 2020) mendefinisikan cybercrime sebagai kasus tindak pidana yang melibatkan komputer atau alat komunikasi, baik sebagai target (sasaran) serangan maupun sebagai instrumen (alat) untuk melakukan kejahatan, serta kejahatan lain yang terkait dengan maraknya (prevalensi) penggunaan teknologi komputer.</li>
+            <li>(Chandra & Snowe, 2020) menjelaskan bahwa cybercrime mencakup spektrum aktivitas yang sangat luas, menggunakan beragam teknologi, dan berpotensi memakan korban (viktimisasi) tanpa terhalang oleh batasan fisik maupun geografis.</li>
+          </ol>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Salah satu tantangan dalam mendefinisikan kejahatan siber adalah fakta bahwa ada terlalu banyak pelanggaran yang beragam, termasuk, tetapi tidak terbatas pada, penipuan finansial dan penyebaran konten kebencian (Olukunle Oladipupo Amoo et al., 2024).
+          </p>
+
+          <h5 class="mt-4 font-semibold">2.1.2 Karakteristik Cybercrime</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Cybercrime mempunyai karakteristik yang unik yang membedakannya dari kejahatan biasanya, sehingga memerlukan pendekatan dan penanganan yang berbeda. Berikut adalah beberapa Karakteristik utama tersebut:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Sifat Lintas Batas (Borderless):</strong> Kejahatan siber tidak terikat oleh yurisdiksi satu negara saja. Seorang penyerang dari negara A dapat menargetkan korban di negara B dengan server yang terletak di negara C. Situasi ini menciptakan paradoks hukum (kompleksitas yurisdiksi) dalam penegakan hukum (Kumar et al., 2023).</li>
+            <li><strong>Anonimitas Pelaku:</strong> Pelaku dapat dengan mudah menyembunyikan identitas aslinya. Menggunakan metode seperti Proxy server, Jaringan Pribadi Virtual (VPN), atau pemalsuan IP (IP Spoofing), pelaku menjadi semakin sulit dilacak (tantangan atribusi).</li>
+            <li><strong>Kecepatan dan Skala (Speed and Scale):</strong> Dalam hitungan detik, serangan dapat diluncurkan dan disebarluaskan ke ribuan atau bahkan jutaan target yang diinginkan melalui Internet, dan dalam waktu singkat, dapat menyebabkan kerugian besar.</li>
+            <li><strong>Ketergantungan pada Teknologi (Technology-Specific):</strong> Kejahatan ini sangat bergantung pada perangkat digital, sistem informasi, dan jaringan komputer.</li>
+            <li><strong>Kerumitan Pembuktian Digital:</strong> Bukti kejahatan nya bersifat digital (bukti elektronik) dan mudah hilang (volatile), mudah diubah, dienkripsi, atau dihapus oleh pelaku, sehingga metode forensik digital tertentu diperlukan untuk mengamankannya.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">2.1.3 Klasifikasi Cybercrime</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Berdasarkan peran teknologi komputer dalam kejahatan, cybercrime dapat diklasifikasikan secara umum menjadi:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Computer as a Target (Komputer sebagai Target):</strong> Klasifikasi ini mengarah pada kejahatan di mana sistem komputer, server, atau jaringan itu sendiri yang menjadi sasaran utama serangan, dalam literatur (Weulen Kranenbarg, 2021) juga disebut sebagai cyber-dependent crime (kejahatan yang bergantung pada siber). Ciri utamanya ialah kejahatan ini sama sekali tidak dapat dilakukan (cannot be committed) tanpa menggunakan teknologi informasi (IT). Kejahatan ini menargetkan integritas, kerahasiaan, atau ketersediaan (availability) dari sistem itu sendiri.</li>
+            <li><strong>Computer as a Tool (Komputer sebagai Alat):</strong> cyber-enabled crime atau Computer as a Tool adalah pelanggaran di mana kejahatan tradisional dilakukan dengan memanfaatkan Internet atau teknologi. Berbeda dengan cyber-dependent, kejahatan ini bisa saja terjadi tanpa IT (misalnya penipuan), namun teknologi membuatnya lebih mudah atau skalanya (Leukfeldt et al., 2020).</li>
+            <li><strong>Content-Related Crime (Kejahatan Terkait Konten):</strong> Kategori ini menagarh ke kejahatan di mana konten digital itu sendiri bersifat ilegal, seperti hoaks atau ujaran kebencian. Sifat kejahatan ini sangat transnasional. Sangat mungkin bagi pelaku, korban, dan server yang menyimpan data (seperti server media sosial) berada di negara yang berbeda-beda. Sebagaimana dijelaskan oleh (Sorbán, 2024), kerumitan yurisdiksi inilah yang membuat penegakan hukum, seperti upaya membuat "konten ilegal" (illegal content) tersebut "tidak dapat diakses" (inaccessible), menjadi sangat sulit karena sangat bergantung pada prosedur kerja sama internasional yang kompleks.</li>
+          </ol>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Dalam konteks makalah ini, dua topik yang diangkat dapat dipetakan ke dalam klasifikasi tersebut:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Unauthorized Access termasuk dalam kategori Computer as a Target, karena target serangannya ialah sistem komputer itu sendiri.</li>
+            <li>Illegal Contents termasuk dalam kategori Content-Related Crime, karena yang menjadi unsur pidana adalah konten yang disebarkan.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">2.1.4 Bentuk-Bentuk Kejahatan yang Diangkat</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            <strong>1. Unauthorized Access (Akses Ilegal)</strong>
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Unauthorized Access ialah tindakan meretas akses ke dalam sistem komputer, jaringan, atau data elektronik tanpa izin (otorisasi) yang sah dari pemiliknya, atau melebihi batas izin yang telah diberikan.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Bentuk-bentuk umum dari kejahatan ini meliputi:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Hacking/Cracking:</strong> Upaya teknis untuk menembus (penetrasi) sistem keamanan komputer, server, atau database dengan tujuan mencuri, mengubah, atau merusak data.</li>
+            <li><strong>Phishing:</strong> Teknik rekayasa sosial (social engineering) untuk mengelabui korban agar memberikan data sensitif (seperti username dan password) melalui email, pesan, atau situs web palsu yang menyerupai aslinya.</li>
+            <li><strong>Penyebaran Malware:</strong> Memasukkan perangkat lunak berbahaya (malicious software) seperti Virus, Trojan, atau Ransomware ke sistem korban untuk mengambil alih kendali, mencuri data, atau mengenkripsi data untuk meminta tebusan.</li>
+          </ol>
+
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            <strong>2. Illegal Contents (Konten Ilegal)</strong>
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Illegal Contents merujuk pada semua bentuk data atau informasi elektronik yang pembuatan, kepemilikan, atau penyebarannya dilarang oleh undang-undang karena dianggap melanggar ketertiban umum, norma kesusilaan, atau keamanan negara.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Bentuk-bentuk konten ilegal yang diatur di Indonesia antara lain:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Konten Kesusilaan (Pornografi):</strong> Materi yang mengeksploitasi seksualitas atau mengandung muatan pornografi.</li>
+            <li><strong>Konten Perjudian:</strong> Informasi yang memfasilitasi atau mempromosikan praktik perjudian secara online.</li>
+            <li><strong>Berita Bohong (Hoaks/Disinformasi):</strong> Informasi yang menyesatkan, tidak benar, atau palsu yang disebarkan dengan sengaja untuk menimbulkan kerugian atau keresahan publik.</li>
+            <li><strong>Ujaran Kebencian (SARA):</strong> Konten yang mengandung permusuhan, kebencian, atau penghinaan terhadap individu atau kelompok berdasarkan Suku, Agama, Ras, dan Antargolongan (SARA).</li>
+            <li><strong>Konten Ancaman / Teror:</strong> Informasi yang berisi ancaman kekerasan atau menakut-nakuti yang ditujukan secara pribadi atau kepada publik.</li>
+          </ol>
+
+          <h4 class="mt-4 font-semibold">2.2 Teori Cyberlaw</h4>
+          <h5 class="mt-2 font-semibold">2.2.1 Definisi Cyberlaw</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Cyberlaw (Hukum Siber) merupakan aturan hukum yang mengatur segala aktivitas di dunia maya (cyberspace). Istilah ini, yang juga dikenal secara internasional sebagai Law of Information Technology (Hukum Teknologi Informasi) atau Virtual World Law (Hukum Dunia Maya), mencakup setiap aspek hukum yang berhubungan dengan individu atau subjek hukum yang memanfaatkan teknologi internet.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Di Indonesia, kehadiran cyberlaw secara formal ditandai dengan lahirnya Undang-Undang Nomor 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik (UU ITE), yang menjadi landasan utama untuk mengatur pemanfaatan Teknologi Informasi dan Transaksi Elektronik, termasuk penindakan kejahatan siber (Sahat et al., 2020).
+          </p>
+
+          <h5 class="mt-4 font-semibold">2.2.2 Dasar Hukum Cyberlaw di Indonesia</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Di Indonesia, landasan hukum utama yang mengatur cybercrime adalah Undang-Undang Informasi dan Transaksi Elektronik (UU ITE). Regulasi ini telah mengalami beberapa kali perubahan untuk beradaptasi dengan perkembangan teknologi dan dinamika sosial.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Hierarki legislasi utamanya adalah:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Undang-Undang Nomor 11 Tahun 2008 (UU ITE pertama).</li>
+            <li>Undang-Undang Nomor 19 Tahun 2016 (Perubahan pertama atas UU ITE).</li>
+            <li>Undang-Undang Nomor 1 Tahun 2024 (Perubahan kedua atas UU ITE).</li>
+          </ol>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Penggunaan UU No. 1 Tahun 2024 sangat penting karena UU ini memperjelas, merevisi, dan menambahkan beberapa ketentuan krusial, terutama terkait pasal-pasal mengenai konten ilegal (seperti ujaran kebencian dan hoaks) untuk mengurangi multitafsir.
+          </p>
+
+          <!-- Navigasi Bab -->
+          <div class="chapter-navigation dark:dark">
+            <button class="prev-chapter px-4 py-2 bg-slate-600 text-white rounded-lg shadow hover:bg-slate-700 flex items-center gap-2" data-prev="pendahuluan">
+              <span class="material-icons text-sm">arrow_back</span> Bab Sebelumnya
+            </button>
+            <button class="next-chapter px-4 py-2 bg-sky-600 text-white rounded-lg shadow hover:bg-sky-700 flex items-center gap-2" data-next="pembahasan">
+              Bab Selanjutnya <span class="material-icons text-sm">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- BAB III -->
+        <article id="pembahasan" class="chapter-container bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in sectionAnim">
+          <div class="chapter-title dark:dark">
+            <h3 class="text-xl font-bold font-heading">BAB III — Pembahasan</h3>
+          </div>
+
+          <h4 class="mt-4 font-semibold">3.1 Analisis Motif Pelaku dalam Melakukan Phishing</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Untuk memahami kenapa phishing begitu banyak terjadi, kita perlu memahami apa yang mendorong pelaku melakukan serangan ini. Motifnya beragam mulai dari mencari uang cepat, mencuri data penting, sampai misi spionase.
+          </p>
+
+          <h5 class="mt-4 font-semibold">3.1.1 Landasan Teoritis Kejahatan Siber</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Analisis motif pelaku phishing dapat dibingkai menggunakan beberapa teori kriminologi dan kejahatan siber yang relevan, terutama Rational Choice Theory dan Social Learning Theory.
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Rational Choice Theory (RCT):</strong> Menurut teori ini, pelaku kejahatan bertindak secara rasional menimbang keuntungan dan risiko. Dalam phishing, biaya untuk membuat serangan sangat kecil. Banyak alat seperti BlackEye atau Setoolkit tersedia gratis dan mudah digunakan. Risiko tertangkap pun rendah karena anonimitas internet. Sebaliknya, keuntungan yang didapat bisa sangat besar. Satu kredensial email saja bisa digunakan untuk serangan Business Email Compromise (BEC) yang menyebabkan kerugian miliaran dolar secara global, atau untuk mengirim ransomware yang bisa melumpuhkan satu perusahaan. Karena itu, phishing adalah kejahatan low-risk, high-reward, sehingga menjadi metode serangan paling populer.</li>
+            <li><strong>Social Learning Theory (SLT):</strong> Teori ini menjelaskan bahwa perilaku kriminal bisa dipelajari melalui lingkungan. Saat ini, dunia kejahatan siber sudah seperti "industri" tersendiri. Banyak layanan Crime-as-a-Service (CaaS) seperti Phishing-as-a-Service (PhaaS) dan Ransomware-as-a-Service (RaaS). Pelaku pemula tidak perlu pintar. Mereka cukup menyewa layanan, sehingga batas kemampuan (skill barrier) menjadi sangat rendah. Ini membuat semakin banyak orang tertarik melakukan phishing.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">3.1.2 Motif Ekonomi dan Finansial</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Motif ekonomi adalah pendorong dominan di balik sebagian besar aktivitas phishing. Tujuannya adalah monetisasi langsung dari akses tidak sah yang diperoleh.
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Business Email Compromise (BEC):</strong> Business Email Compromise (BEC) adalah puncak dari phishing bermotif finansial. Serangan ini tidak hanya mengandalkan tautan berbahaya, tetapi eksploitasi "pemahaman mendalam" (deep understanding) terhadap proses bisnis dan kepercayaan (trust) yang ada. Pelaku, setelah mendapatkan akses melalui phishing, akan memantau akun email, memahami pola komunikasi, dan kemudian melakukan rekayasa sosial untuk menipu korban agar mentransfer dana ke rekening pelaku.</li>
+            <li><strong>Ransomware:</strong> Phishing melalui email adalah metode pengiriman (delivery method) nomor satu untuk ransomware. Pelaku mengirim email dengan lampiran berbahaya atau tautan yang mengarah pada unduhan malware. Begitu unauthorized access diperoleh dan malware dieksekusi, pelaku mengenkripsi data organisasi dan menuntut tebusan. Motif ini sering diekskalasi menjadi double extortion, di mana pelaku tidak hanya mengenkripsi data tetapi juga mencurinya (ekfiltrasi data) dan mengancam akan mempublikasikannya jika tebusan tidak dibayar.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">3.1.3 Motif Pencurian Kredensial dan Data Rahasia</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Banyak serangan phishing berfokus pada credential harvesting (pemanenan kredensial). Dalam skenario ini, kredensial itu sendiri adalah komoditas. Kredensial berfungsi sebagai intermediate asset (aset perantara) yang dapat dimonetisasi atau diutilisasi lebih lanjut.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Phishing digunakan untuk mencuri username dan password. Kredensial ini kemudian dapat dijual di dark web kepada Initial Access Brokers (IABs), yang merupakan aktor spesialis penyedia akses awal bagi kelompok kejahatan siber lainnya (seperti operator ransomware). Selain itu, kredensial yang dicuri digunakan oleh pelaku untuk melakukan unauthorized access tahap pertama. Begitu berada di dalam sistem, pelaku akan "bergerak secara lateral" (move laterally) untuk mencari data yang lebih berharga, seperti data rahasia perusahaan (rahasia dagang), Personally Identifiable Information (PII), atau data finansial.
+          </p>
+
+          <h5 class="mt-4 font-semibold">3.1.4 Motif Strategis</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Meskipun didominasi oleh motif finansial, phishing juga merupakan alat vital bagi aktor yang lebih canggih dengan tujuan strategis.
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Spionase:</strong> Kelompok siber yang didukung negara menggunakan phishing untuk mendapatkan intelijen dari pejabat, peneliti, atau perusahaan strategis.</li>
+            <li><strong>Sabotase:</strong> Phishing juga bisa digunakan untuk masuk ke jaringan infrastruktur penting, yang berpotensi menyebabkan gangguan layanan publik.</li>
+            <li><strong>Ideologi (Hacktivism):</strong> Kelompok hacktivist memakai phishing untuk merusak situs, mencuri dokumen, atau memprotes isu tertentu.</li>
+          </ol>
+
+          <h4 class="mt-4 font-semibold">3.2 Analisis Penyebab Terjadinya Unauthorized Access akibat Phishing</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Keberhasilan serangan phishing yang berujung pada unauthorized access bukanlah kegagalan tunggal, melainkan kegagalan sistemik yang melibatkan interaksi kompleks antara tiga faktor: teknis, manusia, dan organisasi.
+          </p>
+
+          <h5 class="mt-4 font-semibold">3.2.1 Alur Teknis Serangan (Phishing Attack Chain)</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Untuk memahami bagaimana phishing bekerja, berikut dua contoh nyata:
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            <strong>Studi Kasus 1: Serangan Multi-Channel (Cloudflare–Okta Attack)</strong>
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Pelaku membuat domain palsu yang mirip dengan yang asli.</li>
+            <li>Mengirim pesan SMS berisi link palsu.</li>
+            <li>Korban mengklik karena narasi urgensi.</li>
+            <li>Korban memasukkan username, password, dan kode OTP.</li>
+            <li>Pelaku mencoba login ke sistem Cloudflare, tetapi gagal total karena sistem tersebut menggunakan FIDO2 (tahan phishing).</li>
+          </ol>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            <strong>Studi Kasus 2: Serangan Mass-Mailer (LinkedIn)</strong>
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Pelaku memakai BlackEye untuk membuat halaman login LinkedIn palsu.</li>
+            <li>Email massal dikirim menggunakan Setoolkit.</li>
+            <li>Korban membuka email dan memasukkan kredensial ke halaman palsu.</li>
+            <li>Pelaku mendapatkan akses penuh ke akun LinkedIn korban.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">3.2.2 Analisis Faktor Teknis (Kelemahan Infrastruktur)</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Beberapa kelemahan teknis membuat phishing lebih mudah berhasil:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Kegagalan Protokol Autentikasi Email:</strong> Walaupun ada SPF, DKIM, dan DMARC, penelitian menunjukkan 89% email berbahaya masih lolos. Alasannya, pelaku tidak lagi memalsukan domain secara langsung, melainkan menggunakan: 1) domain mirip (typosquatting), 2) domain baru (NRD), 3) impersonasi brand.</li>
+            <li><strong>Autentikasi yang Rentan:</strong> Sistem yang masih memakai password atau bahkan OTP bisa ditembus. Kode SMS/TOTP bisa dicuri dengan teknik halaman login palsu.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">3.2.3 Faktor Manusia (Eksploitasi Psikologis)</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Ini faktor paling menentukan. Phishing bekerja karena penyerang memanipulasi pikiran manusia.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Beberapa kelemahan manusia yang sering dieksploitasi:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li>Kurang pengetahuan digital</li>
+            <li>Kurang perhatian (autopilot)</li>
+            <li>Tekanan /stress</li>
+            <li>Terlalu percaya diri</li>
+            <li>Kebiasaan di kantor (norms)</li>
+            <li>Misalnya terbiasa membuka email dari HR sehingga lebih mudah tertipu.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">3.2.4 Faktor Organisasi</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Kegagalan di tingkat organisasi menciptakan lingkungan di mana faktor teknis dan manusia dapat dieksploitasi dengan mudah.
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>SOP dan Pelatihan yang Tidak Efektif:</strong> Sebuah laporan menemukan bahwa empat dari lima tantangan teratas dalam mencegah ransomware (yang didahului phishing) tidak terkait dengan teknologi, melainkan dengan "people and processes" (manusia dan proses). Ini menunjukkan kegagalan dalam Standar Operasional Prosedur (SOP) keamanan dan program pelatihan. Pelatihan cybersecurity awareness seringkali hanya bersifat one-off (sekali jalan) atau berfokus pada kepatuhan, bukan pada perubahan perilaku kognitif.</li>
+            <li><strong>Ketiadaan Budaya Keamanan Proaktif ("Blame Culture"):</strong> Salah satu rekomendasi kunci untuk mitigasi adalah membangun "budaya paranoid, namun bebas dari menyalahkan" (paranoid, blame-free culture). Ini menyiratkan bahwa kebalikannya blame culture (budaya menyalahkan) adalah umum dan sangat berbahaya. Dalam blame culture, jika seorang karyawan (Faktor Manusia) mengeklik tautan phishing (Faktor Teknis) karena SOP yang lemah (Faktor Organisasi), karyawan tersebut akan dihukum. Akibatnya, karyawan lain yang mungkin melakukan kesalahan serupa akan takut untuk melapor. Keterlambatan pelaporan ini memberikan pelaku jeda waktu (dwell time) yang kritis untuk bergerak lateral dan mengeksfiltrasi data setelah unauthorized access awal berhasil.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">Tabel 3.1 Matriks Analisis Tri-Faktor Penyebab Unauthorized Access akibat Phishing</h5>
+          <div class="overflow-x-auto mt-3">
+            <table class="min-w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <thead>
+                <tr class="bg-slate-100 dark:bg-slate-700">
+                  <th class="py-2 px-4 text-left text-sm font-medium">Faktor</th>
+                  <th class="py-2 px-4 text-left text-sm font-medium">Deskripsi Penyebab Spesifik</th>
+                  <th class="py-2 px-4 text-left text-sm font-medium">Bukti/ Contoh dari Materi Penelitian</th>
+                  <th class="py-2 px-4 text-left text-sm font-medium">Dampak Langsung terhadap Unauthorized Access</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-2 px-4">Teknis</td>
+                  <td class="py-2 px-4">Kegagalan Protokol Kepercayaan Email</td>
+                  <td class="py-2 px-4">89% email berbahaya lulus cek SPF/DKIM/DMARC. Pelaku menggunakan brand impersonation dan NRD yang secara teknis valid.</td>
+                  <td class="py-2 px-4">Email phishing berhasil masuk ke inbox pengguna dan terlihat sah, meningkatkan kemungkinan interaksi.</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-4">Teknis</td>
+                  <td class="py-2 px-4">Autentikasi yang Rentan (Phishable MFA)</td>
+                  <td class="py-2 px-4">Sistem masih mengandalkan MFA berbasis TOTP atau SMS, yang terbukti dapat dicuri oleh credential harvester.</td>
+                  <td class="py-2 px-4">Pelaku dapat menembus lapisan pertahanan kedua (MFA), membuat kredensial yang dicuri menjadi sepenuhnya fungsional.</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-4">Manusia</td>
+                  <td class="py-2 px-4">Eksploitasi Kognitif & Manipulasi Psikologis</td>
+                  <td class="py-2 px-4">Eksploitasi Lack of Awareness, Complacency, Pressure, dan Norms. Penggunaan narasi urgensi dan penipuan otoritas.</td>
+                  <td class="py-2 px-4">Pengguna (korban) secara sukarela menyerahkan kredensial (kunci sistem) kepada pelaku karena persepsi realitas mereka telah dimanipulasi.</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-4">Organisasi</td>
+                  <td class="py-2 px-4">Pelatihan dan SOP yang Tidak Memadai</td>
+                  <td class="py-2 px-4">4 dari 5 tantangan teratas adalah "people and processes". Pelatihan sering gagal mengubah perilaku kognitif.</td>
+                  <td class="py-2 px-4">Karyawan tidak memiliki bekal yang cukup untuk mengidentifikasi atau merespons serangan phishing yang canggih.</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-4">Organisasi</td>
+                  <td class="py-2 px-4">Budaya Menyalahkan (Blame Culture)</td>
+                  <td class="py-2 px-4">Rekomendasi untuk "blame-free culture" menyiratkan bahwa budaya menyalahkan adalah masalah.</td>
+                  <td class="py-2 px-4">Karyawan takut melapor saat terjadi insiden. Keterlambatan pelaporan ini memberi waktu bagi pelaku untuk bergerak lateral pasca-akses.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4 class="mt-4 font-semibold">3.3 Penanggulangan Unauthorized Access Akibat Phishing</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Untuk melawan phishing, organisasi harus memakai pendekatan pertahanan berlapis (defense-in-depth) dan menerapkan Zero Trust.
+          </p>
+
+          <h5 class="mt-4 font-semibold">3.3.1 Mitigasi Teknis (Zero Trust Architecture)</h5>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>MFA Tahan Phishing (FIDO2) – Prioritas Utama:</strong> Kasus Cloudflare membuktikan bahwa walaupun kredensial dan kode TOTP dicuri, pelaku tetap gagal masuk karena tidak punya kunci fisik FIDO2. Inilah alasan FIDO2 lebih aman dibanding SMS atau TOTP.</li>
+            <li><strong>Filtrasi dan Isolasi Email:</strong> 1) Secure Email Gateway, 2) Pemblokiran domain baru / typosquatting, 3) Remote Browser Isolation.</li>
+            <li><strong>Deteksi dan Respons:</strong> 1) EDR untuk mendeteksi aktivitas mencurigakan, 2) Patch management.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">3.3.2 Mitigasi Organisasi dan Manajemen</h5>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Pelatihan Berkelanjutan:</strong> Pelatihan harus fokus pada perubahan perilaku, bukan sekadar teori. Termasuk simulasi phishing, gamifikasi, dan pembelajaran tanda-tanda manipulasi psikologis.</li>
+            <li><strong>Membangun Budaya Keamanan:</strong> Organisasi perlu budaya "waspada tetapi tidak menyalahkan". Pelaporan cepat sangat penting untuk mencegah dampak lebih besar.</li>
+          </ol>
+
+          <h5 class="mt-4 font-semibold">3.3.3 Kerangka Regulasi dan Hukum di Indonesia</h5>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Kerangka hukum di Indonesia memberikan konsekuensi bagi pelaku sekaligus menempatkan tanggung jawab pada organisasi untuk mencegah insiden ini.
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Jerat Pidana bagi Pelaku (UU ITE):</strong> Aktivitas unauthorized access yang difasilitasi oleh phishing secara definitif merupakan tindak pidana siber. Undang-Undang No. 19 Tahun 2016 tentang Perubahan atas UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik (UU ITE) secara spesifik mengaturnya dalam Pasal 30 mengenai Akses Ilegal.
+              <ul class="list-disc pl-6 mt-1">
+                <li>Pasal 30 ayat (1): "Setiap Orang dengan sengaja dan tanpa hak atau melawan hukum mengakses Komputer dan/atau Sistem Elektronik milik Orang lain dengan cara apa pun." (Aksi login ilegal menggunakan kredensial hasil phishing).</li>
+                <li>Pasal 30 ayat (2): "... dengan tujuan untuk memperoleh Informasi Elektronik dan/atau Dokumen Elektronik." (Tujuan dari credential harvesting).</li>
+                <li>Pasal 30 ayat (3): "... dengan cara melanggar, menerobos, melampaui, atau menjebol sistem pengamanan." (Phishing dianggap sebagai metode menjebol sistem pengamanan sosial / teknis).</li>
+              </ul>
+              Selain itu, jika pelaku mengubah atau merusak data setelah mendapatkan akses (misalnya dalam serangan ransomware), mereka dapat dijerat dengan Pasal 32 UU ITE.
+            </li>
+            <li><strong>Tanggung Jawab Organisasi (UU PDP):</strong> Terjadi pergeseran beban tanggung jawab hukum dari korban individu ke organisasi (Pengendali Data). Undang-Undang No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP) menempatkan kewajiban hukum yang ketat pada "Pengendali Data" (organisasi) untuk melindungi data pribadi yang mereka proses.
+              <p class="mt-2 text-slate-700 dark:text-slate-300">
+                Jika terjadi unauthorized access akibat phishing yang menyebabkan kebocoran data pribadi, organisasi tersebut harus membuktikan bahwa mereka telah menerapkan langkah-langkah keamanan yang memadai. Jika dapat dibuktikan bahwa organisasi lalai — misalnya, gagal menerapkan mitigasi teknis yang wajar seperti MFA, tidak memberikan pelatihan yang memadai, atau memiliki SOP yang lemah — maka organisasi tersebut (yang notabene adalah korban serangan phishing) dapat dikenai sanksi administratif berat berdasarkan UU PDP.
+              </p>
+              <p class="mt-2 text-slate-700 dark:text-slate-300">
+                Kerangka hukum ganda ini (UU ITE dan UU PDP) menciptakan insentif yang kuat: UU ITE untuk menghukum pelaku, dan UU PDP untuk mewajibkan organisasi berinvestasi secara serius dalam strategi penanggulangan teknis (3.3.1) dan manajemen (3.3.2) guna menghindari denda akibat kelalaian.
+              </p>
+            </li>
+          </ol>
+
+          <!-- Navigasi Bab -->
+          <div class="chapter-navigation dark:dark">
+            <button class="prev-chapter px-4 py-2 bg-slate-600 text-white rounded-lg shadow hover:bg-slate-700 flex items-center gap-2" data-prev="landasan">
+              <span class="material-icons text-sm">arrow_back</span> Bab Sebelumnya
+            </button>
+            <button class="next-chapter px-4 py-2 bg-sky-600 text-white rounded-lg shadow hover:bg-sky-700 flex items-center gap-2" data-next="penutup">
+              Bab Selanjutnya <span class="material-icons text-sm">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- BAB IV -->
+        <article id="penutup" class="chapter-container bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in sectionAnim">
+          <div class="chapter-title dark:dark">
+            <h3 class="text-xl font-bold font-heading">BAB IV — Penutup</h3>
+          </div>
+
+          <h4 class="mt-4 font-semibold">4.1 Kesimpulan</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Berdasarkan hasil analisis yang dilakukan pada bab sebelumnya, dapat disimpulkan bahwa phishing memiliki korelasi yang sangat kuat terhadap terjadinya akses tidak sah (unauthorized access) pada sistem komputer. Korelasi ini muncul karena phishing mengeksploitasi tiga dimensi utama keamanan informasi, yaitu:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Faktor Teknis:</strong> Sistem yang masih bergantung pada autentikasi berbasis password, SMS OTP, atau TOTP rentan terhadap pencurian kredensial melalui teknik credential harvesting. Ketika kredensial ini berhasil dicuri, pelaku dapat memperoleh akses langsung ke sistem dan melanjutkan serangan ke tahap yang lebih dalam.</li>
+            <li><strong>Faktor Manusia:</strong> Phishing memanfaatkan kelemahan kognitif manusia, seperti kurangnya literasi digital, tekanan waktu, rasa panik, serta kepercayaan terhadap otoritas palsu. Manipulasi psikologis ini menyebabkan korban menyerahkan kredensial secara sukarela tanpa menyadari bahwa mereka telah ditipu.</li>
+            <li><strong>Faktor Organisasi:</strong> Lemahnya SOP keamanan, kurangnya pelatihan berkelanjutan, serta budaya menyalahkan (blame culture) membuat insiden sulit terdeteksi dengan cepat. Keterlambatan pelaporan memperbesar peluang pelaku untuk bergerak lateral dan melakukan eksploitasi lanjutan di dalam sistem.</li>
+          </ol>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Kombinasi ketiga faktor ini membuat phishing menjadi vektor serangan yang paling efektif dalam menyebabkan unauthorized access. Hal ini menunjukkan bahwa masalah keamanan informasi bukan hanya persoalan teknologi, tetapi mencakup aspek manusia dan manajemen organisasi secara menyeluruh.
+          </p>
+
+          <h4 class="mt-4 font-semibold">4.2 Saran</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Untuk meminimalkan risiko unauthorized access yang disebabkan oleh serangan phishing, beberapa saran yang direkomendasikan antara lain:
+          </p>
+          <ol class="list-decimal pl-6 mt-2 text-slate-700 dark:text-slate-300">
+            <li><strong>Menerapkan Autentikasi Tahan-Phishing (FIDO2/WebAuthn):</strong> Teknologi ini tidak dapat dicuri melalui phishing sehingga memberikan perlindungan yang jauh lebih kuat dibandingkan password atau OTP.</li>
+            <li><strong>Mengadopsi Zero Trust Architecture:</strong> Pendekatan ini memastikan bahwa setiap permintaan akses harus diverifikasi secara ketat, sehingga mengurangi peluang terjadinya lateral movement oleh pelaku setelah mendapatkan akses awal.</li>
+            <li><strong>Melakukan Pelatihan Cybersecurity Awareness Secara Rutin:</strong> Pelatihan harus dilakukan dengan metode simulasi, studi kasus, gamifikasi, dan pendekatan berbasis perilaku agar lebih efektif dalam meningkatkan kewaspadaan pengguna.</li>
+            <li><strong>Membangun Budaya Keamanan yang Mendukung Pelaporan Cepat:</strong> Organisasi perlu menghapus budaya menyalahkan korban. Pelaporan cepat sangat penting agar insiden dapat ditangani sebelum pelaku memperluas akses.</li>
+            <li><strong>Memperkuat SOP dan Prosedur Keamanan:</strong> SOP terkait manajemen email, keamanan identitas, verifikasi transaksi, dan respons insiden harus diperbaharui secara berkala dan disosialisasikan kepada seluruh pengguna.</li>
+          </ol>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Dengan menerapkan rekomendasi ini, organisasi maupun individu dapat memperkuat ketahanan terhadap ancaman phishing serta mengurangi peluang terjadinya akses tidak sah.
+          </p>
+
+          <h4 class="mt-4 font-semibold">4.3 Pembelajaran dari Kasus</h4>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            Dari berbagai studi kasus phishing, pembelajaran penting yang dapat diambil adalah bahwa keamanan informasi tidak dapat bergantung hanya pada teknologi. Kombinasi antara kesadaran manusia, budaya organisasi yang sehat, serta kerangka hukum yang kuat menjadi faktor utama dalam menekan tingkat keberhasilan phishing. Hal ini menunjukkan bahwa pencegahan harus dilakukan secara menyeluruh dan berkelanjutan.
+          </p>
+
+          <!-- Navigasi Bab -->
+          <div class="chapter-navigation dark:dark">
+            <button class="prev-chapter px-4 py-2 bg-slate-600 text-white rounded-lg shadow hover:bg-slate-700 flex items-center gap-2" data-prev="pembahasan">
+              <span class="material-icons text-sm">arrow_back</span> Bab Sebelumnya
+            </button>
+            <button class="next-chapter px-4 py-2 bg-sky-600 text-white rounded-lg shadow hover:bg-sky-700 flex items-center gap-2" data-next="daftar-pustaka">
+              Daftar Pustaka <span class="material-icons text-sm">arrow_forward</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Daftar Pustaka -->
+        <article id="daftar-pustaka" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in sectionAnim">
+          <h3 class="text-xl font-bold font-heading">Daftar Pustaka</h3>
+          <ol class="list-decimal pl-6 mt-3 text-slate-700 dark:text-slate-300">
+            <li>Al-Khater, W. A., Al-Maadeed , S., Ahmed, A. A., Sadiq, A. S., & Khan, M. K. (2020). Comprehensive review of cybercrime detection techniques. IEEE Access, 8, 137293–137311. https://doi.org/10.1109/ACCESS.2020.3011259</li>
+            <li>Chandra, A., & Snowe, M. J. (2020). A taxonomy of cybercrime: Theory and design. International Journal of Accounting Information Systems, 38. https://doi.org/10.1016/j.accinf.2020.100467</li>
+            <li>Cloudflare. (2023). 2023 Phishing Threats Report. Cloudflare, Inc.</li>
+            <li>Desolda , G., Ferro, L. S., Marrella, A.,  Catarci , T., & Costabile, M. F. (2022). Human factors in phishing attacks: A systematic literature review. ACM Computing Surveys.</li>
+            <li>ENISA. (2023). ENISA Threat Landscape 2023. European Union Agency for Cybersecurity.</li>
+            <li>Fortinet. (2023). The 2023 Global Ransomware Report. Fortinet, Inc.</li>
+            <li>Kumar, D., Deb Roy, N., Dhar, R., Gohain, M., Ali, A., & Borah, U. (2023). Combating Cybercrime: An analysis of national and international legal mechanisms.  Tuijin  Jishu/Journal of Propulsion Technology. https://doi.org/10.31124/advance.20066321.v1</li>
+            <li>Leukfeldt, E. R.,  Notté , R. J., & Malsch, M. (2020). Exploring the needs of victims of cyber-dependent and cyber-enabled crimes. Victims and Offenders, 15(1), 60–77. https://doi.org/10.1080/15564886.2019.1672229</li>
+            <li>Olukunle  Oladipupo Amoo,  Akoh   Atadoga , Temitayo Oluwaseun Abrahams, Oluwatoyin Ajoke Farayola, Femi  Osasona , & Benjamin Samson Ayinla. (2024). The legal landscape of cybercrime: A review of contemporary issues in the criminal justice system. World Journal of Advanced Research and Reviews, 21(2), 205–217. https://doi.org/10.30574/wjarr.2024.21.2.0438</li>
+            <li>Purnamasari , &  Sutabri , T. (2023).  Analisis   kejahatan  online phishing pada  institusi   pemerintahan / pendidik   sehari-hari .  Jurnal  Digital  Teknologi   Informasi , 6(1), 29–34.</li>
+            <li>Republik Indonesia. (2016).  Undang-Undang   Nomor  19  Tahun  2016  tentang   Perubahan   atas   Undang-Undang   Nomor  11  Tahun  2008  tentang   Informasi  dan  Transaksi  Elektronik.  Lembaran  Negara Republik Indonesia  Tahun  2016  Nomor  251.</li>
+            <li>Republik Indonesia. (2022).  Undang-Undang   Nomor  27  Tahun  2022  tentang   Pelindungan  Data Pribadi.  Lembaran  Negara Republik Indonesia  Tahun  2022  Nomor  196.</li>
+            <li>Sahat, M. T.,  Situmeang , S. H., Sahat, M. H., &  Situmeang , M. T. (2020). Cyber Law.</li>
+            <li>Sorbán, K. (2024). Procedural dilemmas of cybercrimes involving illegal content dissemination in cross-border situations.  Belügyi  Szemle. https://doi.org/10.38146/BSZ.2024.1.8</li>
+            <li>Wahyuni, S., Raazi, I. M., &  Dwitawati , I. (2022).  Analisis   teknik   penyerangan  phishing pada social engineering  terhadap   keamanan   informasi  di media  sosial   profesional   menggunakan   kombinasi  Black Eye dan  Setoolkit .  Jurnal  Nasional  Komputasi  dan  Teknologi   Informasi  (JNKTI), 5(1), 49–55.</li>
+            <li>Weulen  Kranenbarg, M. (2021). Cyber-dependent crime versus traditional crime: Empirical evidence for clusters of offenses and related motives (pp. 195–216). https://doi.org/10.1007/978-3-030-60527-8_12</li>
+          </ol>
+        </article>
+
+      </div>
+    </section>
+
+  <!-- Team & Info -->
+<section id="team" class="mt-10 grid md:grid-cols-3 gap-6">
+  <div class="md:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in">
+    <h3 class="text-lg font-semibold">Identitas Kelompok</h3>
+    <strong>Anonym</strong></p>
+    <p class="mt-3 text-slate-700 dark:text-slate-300">Disusun oleh:</p>
+    <ul class="mt-3 list-disc pl-6 text-slate-700 dark:text-slate-300">
+      <li>Atha Rizky Putra Sinuraya — 2205181064</li>
+      <li>Fitzan Ashari — 2205181004</li>
+      <li>Muhammad Yusuf Aulia — 2205181006</li>
+      <li>Rangga Nugraha — 2205181046</li>
+    </ul>
+
+        <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+          Program Studi: Teknologi Rekayasa Perangkat Lunak — Politeknik Negeri Medan • 2025
+        </p>
+      </div>
+
+      <aside class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow fade-in">
+        <h4 class="font-semibold">Dosen Penanggung Jawab</h4>
+        <p class="mt-2 text-slate-700 dark:text-slate-300">Sri Novida Sari</p>
+      </aside>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t dark:border-slate-700 mt-12 py-6">
+    <div class="max-w-screen-xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="text-sm text-slate-600 dark:text-slate-400">© 2025 Kelompok 4 — TRPL Politeknik Negeri Medan</div>
+      <div class="flex items-center gap-4">
+        <a href="mailto:fitzan@example.com" class="text-sm text-slate-500 dark:text-slate-300 hover:underline">Kontak Tim</a>
+        <!-- Tombol Ke Atas yang Sticky -->
+        <button id="topBtn" class="material-icons" aria-label="Kembali ke atas">arrow_upward</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Sistem navigasi bab
+    (function(){
+      const chapters = ['pendahuluan', 'landasan', 'pembahasan', 'penutup', 'daftar-pustaka'];
+      let currentChapterIndex = 0;
+      
+      // Fungsi untuk menampilkan bab tertentu
+      function showChapter(chapterId) {
+        // Sembunyikan semua bab
+        document.querySelectorAll('.chapter-container').forEach(chapter => {
+          chapter.classList.remove('active');
+        });
+        
+        // Tampilkan bab yang dipilih
+        const targetChapter = document.getElementById(chapterId);
+        if (targetChapter) {
+          targetChapter.classList.add('active');
+        }
+        
+        // Update indikator bab
+        document.querySelectorAll('.chapter-dot').forEach((dot, index) => {
+          if (chapters[index] === chapterId) {
+            dot.classList.add('active');
+            currentChapterIndex = index;
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+        
+        // Update daftar isi
+        document.querySelectorAll('.chapter-link').forEach(link => {
+          if (link.getAttribute('data-chapter') === chapterId) {
+            link.classList.add('font-bold', 'text-sky-600');
+          } else {
+            link.classList.remove('font-bold', 'text-sky-600');
+          }
+        });
+        
+        // Scroll ke atas
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      
+      // Event listener untuk tombol navigasi
+      document.querySelectorAll('.next-chapter').forEach(button => {
+        button.addEventListener('click', function() {
+          const nextChapter = this.getAttribute('data-next');
+          showChapter(nextChapter);
+        });
+      });
+      
+      document.querySelectorAll('.prev-chapter').forEach(button => {
+        button.addEventListener('click', function() {
+          const prevChapter = this.getAttribute('data-prev');
+          showChapter(prevChapter);
+        });
+      });
+      
+      // Event listener untuk indikator bab
+      document.querySelectorAll('.chapter-dot').forEach(dot => {
+        dot.addEventListener('click', function() {
+          const chapterId = this.getAttribute('data-chapter');
+          showChapter(chapterId);
+        });
+      });
+      
+      // Event listener untuk daftar isi
+      document.querySelectorAll('.chapter-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const chapterId = this.getAttribute('data-chapter');
+          showChapter(chapterId);
+        });
+      });
+      
+      // Inisialisasi: tampilkan bab pertama
+      showChapter('pendahuluan');
+    })();
+
+    // Basic fade-in using IntersectionObserver
+    (function(){
+      const nodes = document.querySelectorAll('.fade-in');
+      const io = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.18 });
+
+      nodes.forEach(n => io.observe(n));
+    })();
+
+    // Mobile nav toggle
+    (function(){
+      const btn = document.getElementById('menuToggle');
+      const mobile = document.getElementById('mobileNav');
+      if (!btn || !mobile) return;
+      btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        mobile.classList.toggle('hidden');
+      });
+    })();
+
+    // Dark mode persisted & toggle with icon update
+    (function(){
+      const html = document.documentElement;
+      const saved = localStorage.getItem('pref-dark');
+      const isDark = saved === 'on' || (saved !== 'off' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) html.classList.add('dark');
+
+      const updateIcons = (isDark) => {
+        document.querySelectorAll('#darkToggle .material-icons, #darkToggleMobile .material-icons').forEach(icon => {
+          icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+        });
+        // Update button style if needed
+        const topBtn = document.getElementById('topBtn');
+        if (topBtn) {
+          if (isDark) {
+            topBtn.classList.remove('dark-mode');
+          } else {
+            topBtn.classList.add('dark-mode');
+          }
+        }
+      };
+      updateIcons(isDark);
+
+      function toggle() {
+        html.classList.toggle('dark');
+        const nowDark = html.classList.contains('dark');
+        localStorage.setItem('pref-dark', nowDark ? 'on' : 'off');
+        updateIcons(nowDark);
+      }
+      if (document.getElementById('darkToggle')) document.getElementById('darkToggle').addEventListener('click', toggle);
+      if (document.getElementById('darkToggleMobile')) document.getElementById('darkToggleMobile').addEventListener('click', toggle);
+    })();
+
+    // Scroll to top (for the sticky button)
+    (function(){
+      const topBtn = document.getElementById('topBtn');
+      if (!topBtn) return;
+      topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    })();
+
+    // Parallax effect for hero image
+    (function(){
+      const img = document.getElementById('parallaxImage');
+      if (!img) return;
+      let latestScrollY = 0;
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        latestScrollY = window.scrollY;
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const rect = img.getBoundingClientRect();
+            const mid = rect.top + rect.height / 2;
+            const windowMid = window.innerHeight / 2;
+            const distance = windowMid - mid;
+            const factor = 0.06; // subtle
+            img.style.transform = `translateY(${distance * factor}px)`;
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
+
+    // GSAP: scroll-based motion with robust fallback
+    (function(){
+      const sectionEls = document.querySelectorAll('.sectionAnim');
+
+      // If GSAP not loaded, just show elements (fallback)
+      if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+        // ensure all animated sections become visible
+        sectionEls.forEach(el => el.classList.add('show'));
+        // also ensure any .fade-in become visible (safety)
+        document.querySelectorAll('.fade-in').forEach(n => n.classList.add('show'));
+        console.warn('GSAP not available — fallback applied.');
+        return;
+      }
+
+      try {
+        gsap.registerPlugin(ScrollTrigger);
+
+        // animate sections on scroll
+        gsap.utils.toArray('.sectionAnim').forEach((el) => {
+          gsap.fromTo(el, { y: 28, autoAlpha: 0 }, {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.85,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            }
+          });
+        });
+
+        // gentle stagger for hero fade-ins (only if present)
+        gsap.fromTo('.fade-in', { y: 18, autoAlpha: 0 }, {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.8,
+          ease: 'power2.out',
+          stagger: 0.05,
+        });
+
+      } catch (err) {
+        // if something went wrong, reveal elements
+        sectionEls.forEach(el => el.classList.add('show'));
+        document.querySelectorAll('.fade-in').forEach(n => n.classList.add('show'));
+        console.warn('GSAP error:', err);
+      }
+    })();
+
+    // Accessibility: visible focus on first Tab press
+    (function(){
+      function onFirstTab(e) {
+        if (e.key === 'Tab') {
+          document.body.classList.add('user-is-tabbing');
+          window.removeEventListener('keydown', onFirstTab);
+        }
+      }
+      window.addEventListener('keydown', onFirstTab);
+    })();
+  </script>
+
+</body>
+</html>
